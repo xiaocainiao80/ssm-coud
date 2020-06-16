@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+             http://www.springframework.org/schema/beans/spring-beans.xsd
+             http://www.springframework.org/schema/tx
+             http://www.springframework.org/schema/tx/spring-tx.xsd
+                http://www.springframework.org/schema/context
+              http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--spring配置文件 主要和配置业务逻辑 也就是service层-->
+    <!--扫描除控制器以外的地方-->
+    <context:component-scan base-package="org.xxh">
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Component" />
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Repository" />
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Service" />
+    </context:component-scan>
+
+    <!--数据源，事务控制-->
+    <context:property-placeholder location="classpath:dbconfig.properties"/>
+    <!-- 阿里 druid数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <!-- 数据库基本信息配置 -->
+        <property name="url" value="${url}" />
+        <property name="username" value="${username}" />
+        <property name="password" value="${password}" />
+        <property name="driverClassName" value="${driverClassName}" />
+        <property name="filters" value="${druid_filters}" />
+        <!-- 最大并发连接数 -->
+        <property name="maxActive" value="${max-active}" />
+        <!-- 初始化连接数量 -->
+        <property name="initialSize" value="${initial-size}" />
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="${max-wait}" />
+        <!-- 最小空闲连接数 -->
+        <property name="minIdle" value="${min-idle}" />
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${time-between-eviction-runs-millis}" />
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="${min-evictable-idle-time-millis}" />
+        <property name="validationQuery" value="${validation-query}" />
+        <property name="testWhileIdle" value="${test-while-idle}" />
+        <property name="testOnBorrow" value="${test-on-borrow}" />
+        <property name="testOnReturn" value="${test-on-return}" />
+        <property name="maxEvictableIdleTimeMillis" value="${max-evictable-idle-time-millis}" />
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter" />
+                <ref bean="log-filter"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--Start 慢SQL记录  数据源配置p:proxyFilters="stat-filter"-->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <!-- 慢sql时间设置,即执行时间大于1秒的都是慢sql -->
+        <property name="slowSqlMillis" value="1000"/>
+        <property name="logSlowSql" value="true"/>
+        <property name="mergeSql" value="true" />
+    </bean>
+    <!-- druid SQL配置 -->
+    <bean id="log-filter" class="com.alibaba.druid.filter.logging.Log4j2Filter">
+        <!--显示sql-->
+        <property name="dataSourceLogEnabled" value="true" />
+        <!-- 是否显示SQL语句 -->
+        <property name="statementExecutableSqlLogEnable" value="true"/>
+    </bean>
+
+
+    <!--配置mybatis整合-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--指定mybatis的全局配置文件-->
+        <property name="configLocation" value="classpath:SqlMapConfig.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 扫描 po 包，使用别名 -->
+        <property name="typeAliasesPackage" value="org.xxh.pojo"/>
+    </bean>
+
+
+
+    <!--配置扫描器，将mybatis的接口加入到ioc容器中-->
+    <bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer" >
+        <!--扫描所有dao接口实现，加入到ioc容器-->
+        <property name="basePackage" value="org.xxh.dao"/>
+        <!-- 注意使用 sqlSessionFactoryBeanName 避免出现spring 扫描组件失效问题 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+        <property name="properties">
+            <value>
+                <!-- 通用mapper -->
+                mappers=tk.mybatis.mapper.common.Mapper
+            </value>
+        </property>
+    </bean>
+
+    <!--事务控制-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--控制数据源-->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:annotation-driven/>
+</beans>
