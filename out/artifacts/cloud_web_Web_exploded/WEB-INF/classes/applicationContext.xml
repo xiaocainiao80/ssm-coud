@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+  	 http://www.springframework.org/schema/context
+  	 http://www.springframework.org/schema/context/spring-context-4.2.xsd
+  	 http://www.springframework.org/schema/tx
+  	 http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--    扫描注解-->
+    <context:component-scan base-package="org.xxh">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--配置properties扫描-->
+    <bean id="configProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="fileEncoding" value="UTF-8" />
+        <property name="locations">
+            <list>
+<!--                <value>classpath:jwt.properties</value>-->
+                <!--数据源-->
+                <value>classpath:dbconfig.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="properties" ref="configProperties" />
+    </bean>
+
+    <!-- 阿里 druid数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <!-- 数据库基本信息配置 -->
+        <property name="url" value="${url}" />
+        <property name="username" value="${username}" />
+        <property name="password" value="${password}" />
+        <property name="driverClassName" value="${driverClassName}" />
+        <property name="filters" value="${druid_filters}" />
+        <!-- 最大并发连接数 -->
+        <property name="maxActive" value="${max-active}" />
+        <!-- 初始化连接数量 -->
+        <property name="initialSize" value="${initial-size}" />
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="${max-wait}" />
+        <!-- 最小空闲连接数 -->
+        <property name="minIdle" value="${min-idle}" />
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${time-between-eviction-runs-millis}" />
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="${min-evictable-idle-time-millis}" />
+        <property name="validationQuery" value="${validation-query}" />
+        <property name="testWhileIdle" value="${test-while-idle}" />
+        <property name="testOnBorrow" value="${test-on-borrow}" />
+        <property name="testOnReturn" value="${test-on-return}" />
+        <property name="maxEvictableIdleTimeMillis" value="${max-evictable-idle-time-millis}" />
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter" />
+            </list>
+        </property>
+    </bean>
+
+    <!--Start 慢SQL记录  数据源配置p:proxyFilters="stat-filter"-->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <!-- 慢sql时间设置,即执行时间大于1秒的都是慢sql -->
+        <property name="slowSqlMillis" value="1000"/>
+        <property name="logSlowSql" value="true"/>
+        <property name="mergeSql" value="true" />
+    </bean>
+
+
+    <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!-- 自动扫描mapping.xml文件 -->
+<!--        <property name="mapperLocations" value="classpath:com/cn/hunst/mapping/*.xml"></property>-->
+        <property name="typeAliasesPackage" value="classpath:org.xxh.pojo"></property>
+
+    </bean>
+
+    <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+    <bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.xxh.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <property name="properties">
+            <value>
+                <!-- 通用mapper -->
+                mappers=tk.mybatis.mapper.common.Mapper
+            </value>
+        </property>
+    </bean>
+
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"  proxy-target-class="true" />
+
+</beans>
