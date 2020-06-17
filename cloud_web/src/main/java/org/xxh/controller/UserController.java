@@ -40,19 +40,16 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public Map<String,String> login(String email,String password){
-        User user = userService.findByEmail(email);
+    @ResponseBody
+    public ResponseEntity<Object> login(@RequestBody User user1){
+        User user = userService.findByEmail(user1.getEmail());
         if(user!=null){
-            if(password.equals(user.getPassword())){
-                return (Map<String, String>) new HashMap<>().put("msg","登陆成功!");
+            if(user1.getPassword().equals(user.getPassword())){
+                return new ResponseEntity<Object>("登陆成功!",HttpStatus.ACCEPTED);
             }
-            else {
-                Map<String,String> map = new HashMap<>();
-                map.put("msg",JSON.toJSONString("密码或邮箱不正确"));
-                return map;
-            }
+            return new ResponseEntity<Object>("邮箱或密码错误!",HttpStatus.BAD_REQUEST);
         }
-        return (Map<String, String>) new HashMap<>().put("msg","密码或邮箱不正确!");
+        return new ResponseEntity<Object>("该用户不存在!",HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/login")

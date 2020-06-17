@@ -25,7 +25,12 @@
     </properties>
 
     <dependencies>
-        <!---->
+        <!--公共模块-->
+        <dependency>
+            <groupId>org.xxh</groupId>
+            <artifactId>ssm_common</artifactId>
+            <version>1.0</version>
+        </dependency>
 
     </dependencies>
 
