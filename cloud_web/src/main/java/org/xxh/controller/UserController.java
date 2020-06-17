@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.xxh.pojo.User;
 import org.xxh.service.UserService;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,10 +30,11 @@ public class UserController {
 //    新增用户
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<Object> create(User resources){
+    public ResponseEntity<Object> create(@RequestBody User resources){
         if(userService.findByEmail(resources.getEmail())!=null){
             return new ResponseEntity<Object>("该用户已经注册!", HttpStatus.BAD_REQUEST);
         }
+        resources.setRegisterTime(new Timestamp(System.currentTimeMillis()));
         return new ResponseEntity<Object>(userService.addUser(resources), HttpStatus.CREATED);
     }
 

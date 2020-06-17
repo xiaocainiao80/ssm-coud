@@ -20,9 +20,21 @@
         <context:include-filter type="annotation"
                                 expression="org.springframework.stereotype.Service" />
     </context:component-scan>
+    <!--配置properties扫描-->
+    <bean id="configProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="fileEncoding" value="UTF-8" />
+        <property name="locations">
+            <list>
+                <!--数据源-->
+                <value>classpath:dbconfig.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties" ref="configProperties" />
+    </bean>
 
-    <!--数据源，事务控制-->
-    <context:property-placeholder location="classpath:dbconfig.properties"/>
     <!-- 阿里 druid数据库连接池 -->
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
         <!-- 数据库基本信息配置 -->

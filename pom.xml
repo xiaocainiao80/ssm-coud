@@ -187,6 +187,22 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!--json绑定-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
+            <artifactId>jackson-annotations</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <version>2.11.0</version>
+        </dependency>
     </dependencies>
 
 

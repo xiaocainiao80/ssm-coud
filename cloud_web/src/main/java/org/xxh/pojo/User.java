@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -23,4 +24,5 @@ public class User implements Serializable {
     private String email;
     private String password;
     private String telephone;
+    private Timestamp registerTime;
 }

@@ -49,6 +49,9 @@
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-autoconfigure:1.5.12.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot:1.5.12.RELEASE" />
           <element id="library" level="project" name="Maven: com.alibaba:fastjson:1.2.68" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.11.0" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.11.0" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.11.0" />
         </element>
       </element>
       <element id="directory" name="META-INF">
