@@ -10,5 +10,7 @@ public interface UserService {
 //  email查找user
     User findByEmail(String email);
 
+    public User findByUsername(String username);
 
+    public User findByNameOrEmail(String username);
 }

@@ -3,6 +3,7 @@ package org.xxh.pojo;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 
 import javax.persistence.Column;
@@ -16,10 +17,11 @@ import java.sql.Timestamp;
 @Setter
 @Entity
 @Table(name = "user_info")
+@ToString
 public class User implements Serializable {
     @Id
     @Column(name = "user_id")
-    private int user_id;
+    private int userId;
     private String username;
     private String email;
     private String password;

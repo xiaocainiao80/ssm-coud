@@ -11,49 +11,43 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.xxh.pojo.User;
 import org.xxh.service.UserService;
+import org.xxh.utils.JwtUtil;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/register")
-    public String register(){
-        return "register";
-    }
+
 //    新增用户
     @PostMapping("/register")
-    @ResponseBody
     public ResponseEntity<Object> create(@RequestBody User resources){
-        if(userService.findByEmail(resources.getEmail())!=null){
-            return new ResponseEntity<Object>("该用户已经注册!", HttpStatus.BAD_REQUEST);
-        }
         resources.setRegisterTime(new Timestamp(System.currentTimeMillis()));
         return new ResponseEntity<Object>(userService.addUser(resources), HttpStatus.CREATED);
     }
 
 
     @PostMapping("/login")
-    @ResponseBody
-    public ResponseEntity<Object> login(@RequestBody User user1){
-        User user = userService.findByEmail(user1.getEmail());
-        if(user!=null){
-            if(user1.getPassword().equals(user.getPassword())){
-                return new ResponseEntity<Object>("登陆成功!",HttpStatus.ACCEPTED);
-            }
-            return new ResponseEntity<Object>("邮箱或密码错误!",HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Object> login(@RequestBody User user1) throws Exception {
+//        System.out.println(user1.toString());
+        User user = userService.findByNameOrEmail(user1.getEmail());
+//        user不存在在service层已解决
+        if(user.getPassword().equals(user1.getPassword())){
+            //给用户jwt加密生成token
+            Map<String,Object> map = new HashMap<>();
+            String token = "Bearer "+JwtUtil.createJwt(String.valueOf(user.getUserId()),user.getUsername());
+            map.put("token",token);
+
+            return new ResponseEntity<Object>(map,HttpStatus.OK);
+        }else {
+            return new ResponseEntity<Object>("用户名或密码错误!",HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<Object>("该用户不存在!",HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/login")
-    public String loginPage(){
-        return "login";
-    }
 }
