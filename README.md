@@ -1,5 +1,5 @@
 # ssm-coud
 
-## ssm实现的cloud云盘
+## ssm实现的cloud云盘后端
 
-### 现以完善注册登录和环境配置
+### 使用ssm+jwt+通用mapper以及log4j2彩色打印日志
