@@ -1,7 +1,8 @@
 # ssm-coud
 
 ## ssm实现的cloud云盘后端
-
+## 后端技术栈
+  ### ssm+jwt+通用mapper等
 ### 使用多模块项目管理，将通用api放到了通用模块，增加代码可读性
 
 ### 使用ssm+jwt减轻服务器压力，token验证登录拦截
