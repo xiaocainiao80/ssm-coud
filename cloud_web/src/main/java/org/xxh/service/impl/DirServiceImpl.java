@@ -51,4 +51,24 @@ public class DirServiceImpl implements DirService {
     public Dir findById(Integer dirId) {
         return dirRepository.selectByPrimaryKey(dirId);
     }
+
+    @Override
+    public Integer editDir(String dirName,Integer dirId) {
+        return dirRepository.updateByDirname(dirName,dirId);
+    }
+
+    @Override
+    public Dir findByDirPath(String path) {
+        return dirRepository.selectOneByExample(DirExample.findByDirPath(path));
+    }
+
+    @Override
+    public Integer updateStatusBydirName(String dirName) {
+        return dirRepository.updateStatusByDirName(dirName);
+    }
+
+    @Override
+    public Integer deleteBydirName(String dirName) {
+        return dirRepository.deleteByExample(DirExample.findByDirName(dirName));
+    }
 }

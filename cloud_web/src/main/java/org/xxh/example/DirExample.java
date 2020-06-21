@@ -24,4 +24,10 @@ public class DirExample {
                 .where(Sqls.custom().andEqualTo("status",status))
                 .build();
     }
+
+    public static Example findByDirPath(String path){
+        return Example.builder(Dir.class)
+                .where(Sqls.custom().andEqualTo("dirPath",path))
+                .build();
+    }
 }

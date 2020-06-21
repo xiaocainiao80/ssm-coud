@@ -22,4 +22,12 @@ public interface DirService  {
     List<Dir> findByStatus(Integer status);
 
     Dir findById(Integer dirId);
+
+    Integer editDir(String newDirName,Integer dirId);
+
+    Dir findByDirPath(String path);
+
+    Integer updateStatusBydirName(String dirName);
+
+    Integer deleteBydirName(String dirName);
 }

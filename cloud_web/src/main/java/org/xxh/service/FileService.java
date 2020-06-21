@@ -20,4 +20,6 @@ public interface FileService {
     Integer updateFileStaus(String fileName);
 
     List<File> findByFileStatus(Integer fileStatus);
+
+    List<File> selectByDirId(Integer dirId);
 }

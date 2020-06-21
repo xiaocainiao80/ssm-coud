@@ -23,4 +23,10 @@ public interface FileRepository extends Mapper<File> {
 
     @Update("update file_info set file_status = 0 where file_name = #{fileName}")
     Integer updateStatusByFileName(String fileName);
+
+    @Select("select file_id,file_size,file_upload_time,download_count,file_name,file_type from file_info where file_dir_id = #{dirId}")
+    @Results(
+            @Result(column = "file_id",property = "id",id = true)
+    )
+    List<File> selectByDirId(Integer dirId);
 }

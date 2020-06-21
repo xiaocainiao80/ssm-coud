@@ -29,6 +29,9 @@ public interface DirRepository extends Mapper<Dir> {
     )
     List<Dir> findByParentId(int parentDirId);
 
+    @Update("update dir_info set dir_name = #{dirName} where dir_id =#{dirId}")
+    Integer updateByDirname(@Param("dirName")String dirName,@Param("dirId")Integer dirId);
 
-
+    @Update("update dir_info set status = 0 where dir_name = #{dirName}")
+    Integer updateStatusByDirName(String dirName);
 }

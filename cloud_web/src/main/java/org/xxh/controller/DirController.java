@@ -10,6 +10,7 @@ import org.xxh.service.DirService;
 import org.xxh.service.FileService;
 import org.xxh.vo.DirFileVo;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +90,7 @@ public class DirController {
 
     //增加文件夹
     @PostMapping("/add")
-    public ResponseEntity<Object> addFir(@RequestBody Map<String, String> map){
+    public ResponseEntity<Object> addFir(@RequestBody Map<String, String> map,HttpServletRequest request){
        String name = map.get("name");
       String path = map.get("path");
       String userId = map.get("userId");
@@ -108,6 +109,14 @@ public class DirController {
         newDir.setDirPath(path);
         newDir.setDirName(name);
         newDir.setDirUserId(Integer.parseInt(userId));
+//        服务器创建文件夹
+        String dirPath = request.getServletContext().getRealPath("/upload");
+        path = dirPath+path;
+        java.io.File filePath = new java.io.File(path);
+        if (!filePath.exists() && !filePath.isDirectory()) {
+            System.out.println("目录不存在，创建目录：" + filePath);
+            filePath.mkdir();
+        }
         int result = dirService.addDir(newDir);
         if(result > 0)
             return new ResponseEntity<Object>("200",HttpStatus.CREATED);
@@ -152,5 +161,86 @@ public class DirController {
         }
 //        map.put("data",dirFileVos);
         return new ResponseEntity<Object>(dirFileVos, HttpStatus.OK);
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<Object> editDir(@RequestBody Map<String, String> map) {
+        String name = map.get("name");
+        String path = map.get("path");
+
+
+        //根据path查询到dir
+        Dir dir = dirService.findByDirPath(path);
+
+        Integer result = dirService.editDir(name, dir.getId());
+        if(result > 0)
+            return new ResponseEntity<Object>("200",HttpStatus.CREATED);
+        return new ResponseEntity<Object>("400",HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("delete")
+    public  ResponseEntity<Object> deleteDirToRecycle(@RequestBody Map<String,String> map){
+        String name = map.get("name");
+        System.out.println(name);
+
+
+
+
+//        查询到该文件夹
+        Dir target = dirService.findByDirName(name);
+        int ans = dirService.updateStatusBydirName(target.getDirName());
+        if(!(ans >0)){
+            return new ResponseEntity<Object>("400",HttpStatus.BAD_REQUEST);
+        }
+//        查询该文件夹下所有子文件夹
+        List<Dir> sonDirs = dirService.findByParentId(target.getId());
+        for (Dir dir:sonDirs){
+//           更新dir的status
+            int result = dirService.updateStatusBydirName(dir.getDirName());
+            if(!(result >0)){
+                return new ResponseEntity<Object>("400",HttpStatus.BAD_REQUEST);
+            }
+        }
+
+//        查询该文件夹下文件
+        List<File> files = fileService.findBydirId(target.getId());
+        for (File file:files){
+           int result = fileService.updateFileStaus(file.getFileName());
+            if(!(result >0)){
+                return new ResponseEntity<Object>("400",HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        return new ResponseEntity<Object>("200",HttpStatus.OK);
+    }
+
+
+    //   删除文件
+    @DeleteMapping("/delete/{name}")
+    public ResponseEntity<Object> deleteFile(@PathVariable String name,String path, HttpServletRequest request){
+        System.out.println(name);
+        System.out.println(path);
+//        String suffix = path.substring(path.lastIndexOf("."));
+//        System.out.println(suffix);
+//        删除文件夹
+        String filePath = request.getServletContext().getRealPath("/upload");
+        filePath = filePath + path;
+        java.io.File dirFile = new java.io.File(filePath);
+        Dir dir = dirService.findByDirName(name);
+//        查出文件夹下file
+        List<File> files = fileService.selectByDirId(dir.getId());
+        for (File file : files){
+//            删除文件夹下文件
+            fileService.deleteByFileName(file.getFileName());
+        }
+        Integer result = dirService.deleteBydirName(dir.getDirName());
+        for ( java.io.File file : dirFile.listFiles()) {
+            file.delete();
+        }
+        if (result > 0){
+            dirFile.delete();
+            return new ResponseEntity<Object>("200",HttpStatus.OK);
+        }
+        return new ResponseEntity<Object>("400",HttpStatus.BAD_REQUEST);
     }
 }

@@ -43,7 +43,7 @@ public class UploadController {
         }
 //        System.out.println(userId);
         //获取文件在服务器上的储存位置
-        String path = request.getSession().getServletContext().getRealPath("/upload");
+        String path = request.getServletContext().getRealPath("/upload");
         if(dir!=null){
             path = path+dir.getDirPath();
         }
@@ -132,6 +132,6 @@ public class UploadController {
         if (result > 0){
             return new ResponseEntity<Object>("200",HttpStatus.OK);
         }
-        return new ResponseEntity<Object>("400",HttpStatus.OK);
+        return new ResponseEntity<Object>("400",HttpStatus.BAD_REQUEST);
     }
 }

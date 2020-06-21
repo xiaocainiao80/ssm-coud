@@ -48,4 +48,9 @@ public class FileServiceImpl implements FileService {
     public List<File> findByFileStatus(Integer fileStatus) {
         return fileRepository.selectByExample(FileExample.selectFileByFileStatus(fileStatus));
     }
+
+    @Override
+    public List<File> selectByDirId(Integer dirId) {
+        return fileRepository.selectByDirId(dirId);
+    }
 }
